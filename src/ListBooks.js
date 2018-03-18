@@ -3,19 +3,23 @@ import Book from './Book'
 
 class ListBooks extends Component {
 
-    state = {
-        query: '',
-        bookClassifications:{'0':'None', '1':'Want to Read', '2':'Currently Reading', '3':'Read'},
-        bookStatus: {}
-    }
-
-    constructor(props) {
-        super(props)
-    }
-
     render(){
-       const { listOfBooks } = this.props
-       const { bookClassifications } = this.state
+       const { books } = this.props
+
+        var bookClassifications = [
+            {
+                name:'wantToRead',
+                description:'Want to Read'
+            },
+            {
+                name:'currentlyReading',
+                description:'Currently Reading'
+            },
+            {
+                name:'read',
+                description:'Read'
+            }
+        ]
 
        return (
            <div className="list-books">
@@ -23,26 +27,27 @@ class ListBooks extends Component {
                    <h1>MyReads</h1>
                </div>
                <div className="list-books-content">
+
                    <div>
-                       {listOfBooks.map((books, index) => {
-
-                           return index !== 0 ?
+                       {
+                        bookClassifications.map((shelf) => (
                                <div className="bookshelf">
-                                   <h2 className="bookshelf-title">{bookClassifications[index]}</h2>
-
-                                   <div className="bookshelf-books">
-                                       <ol className="books-grid">
-                                           {books.map((book) => (
-                                               <li key={book.id}>
-                                                   <Book moveBookStatus={this.props.moveBookStatus} book={book}
-                                                         currentBookCategory={index}/>
-                                               </li>
-                                           ))}
-                                       </ol>
-                                   </div>
-
-                               </div> : null
-                       })}
+                                   <h2 className="bookshelf-title">{shelf.description}</h2>
+                                   {
+                                       <div className="bookshelf-books">
+                                           <ol className="books-grid">
+                                               {books.filter((book) => {return book.shelf == shelf.name}).map((book) => (
+                                                       <li key={book.id}>
+                                                           <Book moveBookStatus={this.props.moveBookStatus} book={book}
+                                                                 currentBookCategory={book.shelf}/>
+                                                       </li>
+                                                 ))}
+                                           </ol>
+                                       </div>
+                                   }
+                               </div>
+                        ))
+                       }
                    </div>
                </div>
 

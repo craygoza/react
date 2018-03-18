@@ -40,10 +40,12 @@ class Search extends Component {
                 </div>
                 <div className="search-books-results">
                     <ol className="books-grid">
+                        {console.log(books)}
                     {books && (
+
                             books.map((book) => (
                                 <li key={book.id}>
-                                    <Book book={book} moveBookStatus={this.props.moveBookStatus} currentBookCategory={(currentBookStatus[book.id] ? currentBookStatus[book.id] : 0)}/>
+                                    {<Book book={book} moveBookStatus={this.props.moveBookStatus} currentBookCategory={(currentBookStatus[book.id] ? currentBookStatus[book.id] : book.shelf)} />}
                                 </li>
                             ))
                     )}

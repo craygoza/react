@@ -11,43 +11,42 @@ class BooksApp extends React.Component {
       showSearchPage: false,
       searchedBooks:[],
       currentBookStatus:{},
-      listOfBooks:[]
+      books:[]
   }
 
   searchBooks = (query) => {
-      var {newState} = {}
+      var {newState} = this.state
 
       if (query) {
 
           BooksAPI.search(query).then((searchedBooks) => {
             newState = Object.assign(this.state, {searchedBooks: (searchedBooks.length == 0
                                                 || searchedBooks.error ? [] : searchedBooks)})
+
+              this.setState(newState);
           })
       }
       else {
         newState = Object.assign(this.state, {searchedBooks: [] })
+          this.setState(newState);
 
       }
-
-      this.setState(newState);
-
   }
 
   moveBookStatus = (sourceCategory, targetCategory, book) => {
-      var {listOfBooks} = this.state
-      var {currentBookStatus} = this.state
+      if (book.shelf !== targetCategory) {
+          BooksAPI.update(book, targetCategory).then(() => {
+              book.shelf = targetCategory
 
-      listOfBooks[targetCategory].push(book)
+              var {currentBookStatus} = this.state
+              currentBookStatus[book.id] = targetCategory
 
-      let tempList = listOfBooks[sourceCategory].filter((c) => c.id !== book.id)
-      listOfBooks[sourceCategory] = tempList;
-
-      currentBookStatus[book.id] = targetCategory
-
-      let newState = Object.assign(this.state, {listOfBooks: listOfBooks})
-      newState = Object.assign(newState, {currentBookStatus: currentBookStatus})
-
-      this.setState(newState);
+              this.setState(state => ({
+                  books: state.books.filter(b => b.id !== book.id).concat([ book ]),
+                  currentBookStatus: currentBookStatus
+              }))
+          })
+      }
   }
 
     setSearchPageStatus = (value) => {
@@ -58,12 +57,18 @@ class BooksApp extends React.Component {
     var list = [];
 
     BooksAPI.getAll().then((books) => {
-        list.push([]);
-        list.push(books);
-        list.push([]);
-        list.push([]);
+        var {currentBookStatus} = this.state
 
-        this.setState({listOfBooks:list});
+        books.map((book) => {
+            currentBookStatus[book.id] = book.shelf
+        })
+
+        this.setState(state => ({
+
+            books: books,
+            currentBookStatus: currentBookStatus
+        }))
+
     })
   }
 
@@ -71,13 +76,13 @@ class BooksApp extends React.Component {
     return (
       <div className="app">
 
-          {this.state.showSearchPage == true ? (
+          {this.state.showSearchPage ? (
             <Route path="/search" render={() => (
                 <Search searchBooks={this.searchBooks} moveBookStatus={this.moveBookStatus} books={this.state.searchedBooks} setSearchStatus={this.setSearchPageStatus}  currentBookStatus={this.state.currentBookStatus} />
              )} />
           ):(
               <Route exact path="/" render={() => (
-                <ListBooks moveBookStatus={this.moveBookStatus} listOfBooks={this.state.listOfBooks}/>
+                <ListBooks moveBookStatus={this.moveBookStatus} books={this.state.books}/>
               )} />
             )
           }

@@ -1,14 +1,38 @@
 import React, {Component} from 'react';
 
 class Book extends Component {
-     state = {
-         bookClassifications:{'0':'None', '1':'Want to Read', '2':'Currently Reading', '3':'Read'},
-     }
 
     render(){
 
-        const { book, currentBookCategory, moveBookStatus } = this.props
-        const { bookClassifications } = this.state
+        var { book, currentBookCategory, moveBookStatus } = this.props
+
+        var bookClassifications = [
+            {
+                name:'none',
+                description:'None'
+            },
+            {
+                name:'wantToRead',
+                description:'Want to Read'
+            },
+            {
+                name:'currentlyReading',
+                description:'Currently Reading'
+            },
+            {
+                name:'read',
+                description:'Read'
+            }
+        ]
+
+        let index = bookClassifications.map((shelf) => { return shelf.name }).indexOf(currentBookCategory)
+
+        if (index == -1){
+            index = 0
+            currentBookCategory = 'none'
+        }
+
+        console.log(this.props)
 
         return (
                 <div className="book">
@@ -18,13 +42,15 @@ class Book extends Component {
                             <select onChange={(event)=> moveBookStatus(currentBookCategory, event.target.value, book)}>
 
                                 <option value="0" disabled>Move to...</option>
-                                <option value={currentBookCategory}>{bookClassifications[currentBookCategory]}</option>
+                                <option value={currentBookCategory}>{bookClassifications[index].description}</option>
 
-                                {Object.values(bookClassifications).map((key, value) => {
-                                         return value == currentBookCategory ? null :
-                                                <option key={value} value={value}>{bookClassifications[value]}</option>
-                                    }
-                                )}
+                                {
+                                    bookClassifications.map((shelf) => {
+                                        return  shelf.name === currentBookCategory  ? null :
+                                            <option key={shelf.name} value={shelf.name}>{shelf.description}</option>
+                                    })
+
+                                }
 
                             </select>
                         </div>
